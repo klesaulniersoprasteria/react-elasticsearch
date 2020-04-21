@@ -30,7 +30,7 @@ export default function({ onChange, total, itemsPerPage, page }) {
         <button title="Page précédente" onClick={() => onChange(page - 1)}>&lsaquo;</button>
       </li>
       <li key={page}>
-        <input value={page} onChange={(targetPage) => onChange(targetPage)}/>
+        <input value={page} size="3" onChange={(targetPage) => onChange(targetPage.target.value)}/>
       </li>
       <li key={page+1}>
         <button title="Page précédente" onClick={() => onChange(page + 1)}>&rsaquo;</button>
