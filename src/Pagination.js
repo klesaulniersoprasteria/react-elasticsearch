@@ -18,26 +18,64 @@ function buttons(page, max) {
   return [1, "x", max - 4, max - 3, max - 2, max - 1, max];
 }
 
+function handleKeyPress(event) {
+  if(event.key == 'Enter'){
+    onChange(e.target.value);
+  }
+}
+
 export default function({ onChange, total, itemsPerPage, page }) {
   const max = Math.min(Math.ceil(total / itemsPerPage), 10000 / itemsPerPage);
 
-  return (
-    <ul className="react-es-pagination">
-      <li key={1}>
-        <button title="Première page" onClick={() => onChange(1)}>&laquo;</button>
-      </li>
-      <li key={page-1}>
-        <button title="Page précédente" onClick={() => onChange(page - 1)}>&lsaquo;</button>
-      </li>
-      <li key={page}>
-        <input value={page} size="3" onBlur={(e) => onChange(e.target.value)} onKeyDown={(e) => { if(e.key == "Enter") onChange(e.target.value)} }/>
-      </li>
-      <li key={page+1}>
-        <button title="Page précédente" onClick={() => onChange(page + 1)}>&rsaquo;</button>
-      </li>
-      <li key={max}>
-        <button title="Dernière page" onClick={() => onChange(max)}>&raquo;</button>
-      </li>
-    </ul>
-  );
+  if(page <= 1){
+    return (
+      <ul className="react-es-pagination">
+        <li key={page}>
+          <input value={page} size="3" onBlur={(e) => onChange(e.target.value)} onKeyPress={(e) => handleKeyPress(e) }/>
+        </li>
+        <li key={page+1}>
+          <button title="Page précédente" onClick={() => onChange(page + 1)}>&rsaquo;</button>
+        </li>
+        <li key={max}>
+          <button title="Dernière page" onClick={() => onChange(max)}>&raquo;</button>
+        </li>
+      </ul>
+    );
+  }
+  else if(page == max) {
+    return (
+      <ul className="react-es-pagination">
+        <li key={1}>
+          <button title="Première page" onClick={() => onChange(1)}>&laquo;</button>
+        </li>
+        <li key={page-1}>
+          <button title="Page précédente" onClick={() => onChange(page - 1)}>&lsaquo;</button>
+        </li>
+        <li key={page}>
+          <input value={page} size="3" onBlur={(e) => onChange(e.target.value)} onKeyPress={(e) => handleKeyPress(e) }/>
+        </li>
+      </ul>
+    );
+  }
+  else{
+    return (
+      <ul className="react-es-pagination">
+        <li key={1}>
+          <button title="Première page" onClick={() => onChange(1)}>&laquo;</button>
+        </li>
+        <li key={page-1}>
+          <button title="Page précédente" onClick={() => onChange(page - 1)}>&lsaquo;</button>
+        </li>
+        <li key={page}>
+          <input value={page} size="3" onBlur={(e) => onChange(e.target.value)} onKeyPress={(e) => handleKeyPress(e) }/>
+        </li>
+        <li key={page+1}>
+          <button title="Page précédente" onClick={() => onChange(page + 1)}>&rsaquo;</button>
+        </li>
+        <li key={max}>
+          <button title="Dernière page" onClick={() => onChange(max)}>&raquo;</button>
+        </li>
+      </ul>
+    );
+  }
 }
