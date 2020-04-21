@@ -23,18 +23,21 @@ export default function({ onChange, total, itemsPerPage, page }) {
 
   return (
     <ul className="react-es-pagination">
-      {buttons(page, max)
-        .filter(e => (Number.isInteger(e) ? e <= max : e))
-        .map(i => {
-          if (Number.isInteger(i)) {
-            return (
-              <li key={i} className={page === i ? "react-es-pagination-active-page" : ""}>
-                <button onClick={() => onChange(i)}>{i}</button>
-              </li>
-            );
-          }
-          return <li key={i}>…</li>;
-        })}
+      <li key={1}>
+        <button title="Première page" onClick={() => onChange(1)}>&laquo;</button>
+      </li>
+      <li key={page-1}>
+        <button title="Page précédente" onClick={() => onChange(page - 1)}>&lsaquo;</button>
+      </li>
+      <li key={page}>
+        <input value={page} onChange={(targetPage) => onChange(targetPage)}/>
+      </li>
+      <li key={page+1}>
+        <button title="Page précédente" onClick={() => onChange(page + 1)}>&rsaquo;</button>
+      </li>
+      <li key={max}>
+        <button title="Dernière page" onClick={() => onChange(max)}>&raquo;</button>
+      </li>
     </ul>
   );
 }
