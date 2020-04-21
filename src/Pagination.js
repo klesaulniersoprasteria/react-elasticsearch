@@ -31,7 +31,7 @@ export default function({ onChange, total, itemsPerPage, page }) {
     return (
       <ul className="react-es-pagination">
         <li key={page}>
-          <input value={page} size="3" onBlur={(e) => onChange(e.target.value)} onKeyPress={(e) => handleKeyPress(e) }/>
+        <Input value={page} size="3" onBlur={(e) => onChange(e.target.value)} onKeyPress={(e) => {console.log(e);if(e.key === "Enter"){onChange(e.target.value)}} }/>
         </li>
         <li key={page+1}>
           <button title="Page précédente" onClick={() => onChange(page + 1)}>&rsaquo;</button>
@@ -52,7 +52,7 @@ export default function({ onChange, total, itemsPerPage, page }) {
           <button title="Page précédente" onClick={() => onChange(page - 1)}>&lsaquo;</button>
         </li>
         <li key={page}>
-          <input value={page} size="3" onBlur={(e) => onChange(e.target.value)} onKeyPress={(e) => handleKeyPress(e) }/>
+        <Input value={page} size="3" onBlur={(e) => onChange(e.target.value)} onKeyPress={(e) => {console.log(e);if(e.key === "Enter"){onChange(e.target.value)}} }/>
         </li>
       </ul>
     );
@@ -67,7 +67,7 @@ export default function({ onChange, total, itemsPerPage, page }) {
           <button title="Page précédente" onClick={() => onChange(page - 1)}>&lsaquo;</button>
         </li>
         <li key={page}>
-          <input value={page} size="3" onBlur={(e) => onChange(e.target.value)} onKeyPress={(e) => handleKeyPress(e) }/>
+          <Input value={page} size="3" onBlur={(e) => onChange(e.target.value)} onKeyPress={(e) => {console.log(e);if(e.key === "Enter"){onChange(e.target.value)}} }/>
         </li>
         <li key={page+1}>
           <button title="Page précédente" onClick={() => onChange(page + 1)}>&rsaquo;</button>
