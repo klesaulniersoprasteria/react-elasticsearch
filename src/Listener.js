@@ -128,6 +128,8 @@ export default function({ children, onChange }) {
             async function fetchData() {
               // Only if there is a query to run.
               if (msearchData.length) {
+                console.log("RECHERCHE");
+                console.log(msearchData);
                 const result = await msearch(url, msearchData, headers);
                 result.responses.forEach((response, key) => {
                   const widget = widgets.get(msearchData[key].id);
