@@ -34,7 +34,7 @@ export default function({ onChange, total, itemsPerPage, page }) {
       </ul>
     );
   }
-  else if(page == max) {
+  else if(page >= max) {
     return (
       <ul className="react-es-pagination">
         <li key={0}>
