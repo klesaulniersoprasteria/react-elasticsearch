@@ -13,6 +13,7 @@ export default function({ children, url, onChange, headers }) {
         const widget = {
           needsQuery: action.needsQuery,
           needsConfiguration: action.needsConfiguration,
+          listResult: action.listResult,
           isFacet: action.isFacet,
           wantResults: action.wantResults,
           query: action.query,

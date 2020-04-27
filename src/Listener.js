@@ -16,6 +16,7 @@ export default function({ children, onChange }) {
   }
   const configurableWidgets = widgetThat("needsConfiguration");
   const facetWidgets = widgetThat("isFacet");
+  const listResultWidgets = widgetThat("listResult");
   const searchWidgets = widgetThat("needsQuery");
   const resultWidgets = widgetThat("wantResults");
   const queries = mapFrom("query");
@@ -58,6 +59,22 @@ export default function({ children, onChange }) {
                   query: queryFrom(queries),
                   size: itemsPerPage,
                   from: (page - 1) * itemsPerPage,
+                  sort
+                },
+                data: result => result.hits.hits,
+                total: result => result.hits.total,
+                id
+              });
+            });
+
+            //Récupération des résultats n-100 n+100 pour parcourir la liste des résultats
+            listResultWidgets.forEach((r, id) => {
+              const { itemsPerPage, page, sort } = r.configuration;
+              msearchData.push({
+                query: {
+                  query: queryFrom(queries),
+                  size: 200,
+                  from: (((page - 1) * itemsPerPage) - 100) >= 0 ? (((page - 1) * itemsPerPage) - 100) : 0,
                   sort
                 },
                 data: result => result.hits.hits,
