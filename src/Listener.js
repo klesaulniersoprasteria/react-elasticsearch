@@ -68,13 +68,16 @@ export default function({ children, onChange }) {
             });
 
             //Récupération des résultats n-100 n+100 pour parcourir la liste des résultats
+            let listResultSize = 200;
+            let maxResults = 10000;
+            let fromResults = (((page - 1) * itemsPerPage) - 100) >= 0 ? (((page - 1) * itemsPerPage) - 100) : 0;
             listResultWidgets.forEach((r, id) => {
-              const { itemsPerPage, page, sort } = r.configuration;
+              const { sort } = r.configuration;
               msearchData.push({
                 query: {
                   query: queryFrom(queries),
-                  size: 200,
-                  from: (((page - 1) * itemsPerPage) - 100) >= 0 ? (((page - 1) * itemsPerPage) - 100) : 0,
+                  size:  (fromResults + listResultSize) <= maxResults ? listResultSize : maxResults - fromResults, //Dans le cas où on dépasse le maximum de résultat, on doit diminuer la taille pour ne pas provoquer d'erreur
+                  from: fromResults,
                   sort
                 },
                 data: result => result.hits.hits,

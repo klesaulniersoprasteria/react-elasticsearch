@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useSharedContext } from "./SharedContextProvider";
 import Pagination from "./Pagination";
+import uuid from 'react-uuid';
+
 
 // Pagination, informations about results (like "30 results")
 // and size (number items per page) are customizable.
-export default function({ itemsPerPage, initialPage = 1, pagination, stats, items, id, sort, saveListRefs }) {
+export default function({ itemsPerPage, initialPage = 1, pagination, stats, items, id, sort }) {
   const [{ widgets }, dispatch] = useSharedContext();
   const [initialization, setInitialization] = useState(true);
   const [page, setPage] = useState(initialPage);
@@ -64,14 +66,13 @@ export default function({ itemsPerPage, initialPage = 1, pagination, stats, item
 
   //Liste des références à conserver pour le système de page avant/après
   const listRefs = listResultData.map(({ _source }) => { return _source.REF});
-
-  if(saveListRefs)
-    saveListRefs(listRefs);
+  console.log(listRefs);
+  const idQuery = uuid();
 
   return (
     <div className="react-es-results">
       {stats ? stats(total) : <>{total} results</>}
-      <div className="react-es-results-items">{items(data)}</div>
+      <div className="react-es-results-items">{items(data, listRefs, idQuery)}</div>
       {pagination ? pagination(total, itemsPerPage, page, setPage) : defaultPagination()}
     </div>
   );
