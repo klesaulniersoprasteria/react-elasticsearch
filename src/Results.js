@@ -66,7 +66,6 @@ export default function({ itemsPerPage, initialPage = 1, pagination, stats, item
 
   //Liste des références à conserver pour le système de page avant/après
   const listRefs = listResultData.map(({ _source }) => { return _source.REF});
-  console.log(listRefs);
   const idQuery = uuid();
 
   return (

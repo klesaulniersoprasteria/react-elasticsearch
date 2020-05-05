@@ -68,11 +68,11 @@ export default function({ children, onChange }) {
             });
 
             //Récupération des résultats n-100 n+100 pour parcourir la liste des résultats
-            let listResultSize = 200;
+            let listResultSize = 100;
             let maxResults = 10000;
-            let fromResults = (((page - 1) * itemsPerPage) - 100) >= 0 ? (((page - 1) * itemsPerPage) - 100) : 0;
             listResultWidgets.forEach((r, id) => {
-              const { sort } = r.configuration;
+              const { itemsPerPage, page, sort } = r.configuration;
+              let fromResults = (((page - 1) * itemsPerPage) - (listResultSize / 2)) >= 0 ? (((page - 1) * itemsPerPage) - (listResultSize / 2)) : 0;
               msearchData.push({
                 query: {
                   query: queryFrom(queries),
