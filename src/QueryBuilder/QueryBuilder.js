@@ -30,13 +30,132 @@ export default function QueryBuilder({
   };
   const [rules, setRules] = useState(withUniqueKey(initialValue || [templateRule]));
 
+  function rulesToStructuredObject(rules){
+    let groupedByFieldRules = groupByField(rules);
+    return groupedByFieldRulesToObject(groupedByFieldRules);
+  }
+
+  // groupé par field
+  function groupedByFieldRulesToObject(rules){
+    let returnedObject = {};
+
+    if(rules.length === 1){  
+      returnedObject = groupedByCombinatorRulesToObject(groupByCombitanor(rules[0]))
+    }
+    else{
+      let lastOperation = rules.splice(rules.length - 1, 1)[0];
+      let mainCombinator = lastOperation[0].combinator;
+      let resultObject = [];
+
+      resultObject.push(groupedByFieldRulesToObject(rules));
+      resultObject.push(groupedByCombinatorRulesToObject(groupByCombitanor(lastOperation)));
+
+      if(mainCombinator == "AND"){
+        returnedObject.AND = resultObject;
+      }
+      else{
+        returnedObject.OR = resultObject;
+      }
+    }
+    return returnedObject;
+  }
+
+  function groupedByCombinatorRulesToObject(rules){
+    let returnedObject = {};
+    if(rules.length == 1){
+      if(rules[0].length == 1){
+        returnedObject = rules[0][0];
+      }
+      else{
+        let combinator = rules[0][1].combinator;
+
+        if(combinator === "AND"){
+          returnedObject.AND = [];
+          rules[0].forEach(rule => {
+            returnedObject.AND.push(rule);
+          })
+        }
+        else{
+          returnedObject.OR = [];
+          rules[0].forEach(rule => {
+            returnedObject.OR.push(rule);
+          })
+        }
+      }
+      
+    }
+    else{
+      let lastOperation = rules.splice(rules.length - 1, 1);
+      let mainCombinator = lastOperation[0][0].combinator;
+      let resultObject = [];
+
+      resultObject.push(groupedByCombinatorRulesToObject(rules));
+      resultObject.push(groupedByCombinatorRulesToObject(lastOperation));
+
+      if(mainCombinator == "AND"){
+        returnedObject.AND = resultObject;
+      }
+      else{
+        returnedObject.OR = resultObject;
+      }
+    }
+
+    return returnedObject;
+  }
+
+  function groupByCombitanor(rules){
+    let prevCombinator = "";
+    let groupedByCombinatorRules = [];
+    let indexGroupedRules = 0;
+
+    // Regroupement des opérations par field (pour le plaçage des parentèses logiques)
+    rules.forEach((rule, index) => {
+      // Le combinator du premier élément n'entre pas en compte
+      if(index == 0){
+        groupedByCombinatorRules[indexGroupedRules] = [];
+        groupedByCombinatorRules[indexGroupedRules].push(rule);
+      } // Le deuxième élément est forcément groupé avec le premier
+      else if(index == 1){
+        prevCombinator = rule.combinator;
+        groupedByCombinatorRules[indexGroupedRules].push(rule);
+      }
+      else if(rule.combinator !== prevCombinator){
+        prevCombinator = rule.combinator;
+        indexGroupedRules++;
+        groupedByCombinatorRules[indexGroupedRules] = [];
+        groupedByCombinatorRules[indexGroupedRules].push(rule);
+      }
+      else{
+        groupedByCombinatorRules[indexGroupedRules].push(rule);
+      }
+    })
+
+    return groupedByCombinatorRules
+  }
+
+  function groupByField(rules){
+    let prevField = "";
+    let groupedByFieldRules = [];
+    let indexGroupedRules = -1;
+    // Regroupement des opérations par field (pour le plaçage des parentèses logiques)
+    rules.forEach(rule => {
+      if(rule.field !== prevField){
+        prevField = rule.field;
+        indexGroupedRules++;
+        groupedByFieldRules[indexGroupedRules] = [];
+        groupedByFieldRules[indexGroupedRules].push(rule);
+      }
+      else{
+        groupedByFieldRules[indexGroupedRules].push(rule);
+      }
+    })
+
+    return groupedByFieldRules
+  }
+
   useEffect(() => {
-    const queries = mergedQueries(
-      rules.map(r => ({
-        ...r,
-        query: operators.find(o => o.value === r.operator).query(r.field, r.value)
-      }))
-    );
+    const structuredRules = rulesToStructuredObject(rules);
+    const queries = buildMainQuery([structuredRules]);
     dispatch({
       type: "setWidget",
       key: id,
@@ -44,7 +163,7 @@ export default function QueryBuilder({
       needsConfiguration: false,
       isFacet: false,
       wantResults: false,
-      query: { bool: queries },
+      query: queries,
       value: rules.map(r => ({
         field: r.field,
         operator: r.operator,
@@ -59,6 +178,31 @@ export default function QueryBuilder({
 
   // Destroy widget from context (remove from the list to unapply its effects)
   useEffect(() => () => dispatch({ type: "deleteWidget", key: id }), []);
+
+  function objectToQuery(obj) {
+    return obj.map( item => {
+      if(item.AND){
+        return {"bool": { "must": objectToQuery(item.AND) } }
+      }
+      else if(item.OR){
+        return {"bool": { "should": objectToQuery(item.OR) } }
+      }
+      else {
+        if(item.field){
+          return {"bool": mergedQueries(
+            [item].map(r => ({
+              ...r,
+              query: operators.find(o => o.value === r.operator).query(r.field, r.value)
+            }))
+          )};
+        }
+      }
+    });
+  }
+
+  function buildMainQuery(structuredObject){
+    return objectToQuery(structuredObject)[0] 
+  }
 
   return (
     <div className="react-es-query-builder">
