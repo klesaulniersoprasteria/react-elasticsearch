@@ -68,7 +68,7 @@ export default function({ children, onChange }) {
             });
 
             //Récupération des résultats n-100 n+100 pour parcourir la liste des résultats
-            let listResultSize = 100;
+            let listResultSize = 160;
             let maxResults = 10000;
             listResultWidgets.forEach((r, id) => {
               const { itemsPerPage, page, sort } = r.configuration;
