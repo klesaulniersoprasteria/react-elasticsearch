@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import Autosuggest from "react-autosuggest";
 import { useSharedContext } from "../SharedContextProvider";
 import { msearch } from "../utils";
@@ -10,6 +10,7 @@ export default function Rule({ fields, operators, combinators, ...props }) {
   const [operator, setOperator] = useState(props.operator);
   const [value, setValue] = useState(props.value);
   const [suggestions, setSuggestions] = useState([]);
+  const [seeMore, setSeeMore] = useState(false);
 
   useEffect(() => {
     props.onChange({ field, operator, value, combinator, index: props.index });
@@ -76,21 +77,66 @@ export default function Rule({ fields, operators, combinators, ...props }) {
       );
     }
   }
+
+  //Test si la liste déroulante doit être complète ou non
+  if(!seeMore){
+    const indexGroup = fields.findIndex(e => e.group == true)
+    fields.map( (item, index) => {
+      if(item.value && item.value.length && item.value.length < 2){
+        if(item.value[0] == field && index > indexGroup){
+          setSeeMore(true);
+        }
+      }
+    })
+  }
+
+  //MainOptions = true pour les premiers options du select
+  let mainOptions = true;
+  let hasGroup = false;
   return (
     <div className="react-es-rule">
       {combinatorElement}
       <select
         className="react-es-rule-field"
         value={fields.findIndex(e => String(e.value) === String(field))}
-        onChange={e => setField(fields[e.target.value].value)}
+        onChange={e => {
+          e.target.value == "seeMore" ? 
+          setSeeMore(true) : 
+          setField(fields[e.target.value].value)
+        }}
       >
-        {fields.map((f, k) => {
-          return (
-            <option key={k} value={k}>
-              {f.text}
-            </option>
-          );
+        {fields.map((field, index) => {
+          //Si le field est un titre de group, mainOptions = false et ajout du groupe si
+          if(field.group){
+            hasGroup = true;
+            if(mainOptions){
+              mainOptions = false;
+              return (
+                seeMore && <option className="groupTitle" disabled>
+                  {"- " + field.text}
+                </option>
+              );
+            }
+          }
+          //Si field normal, affiché si mainOptions ou si on a cliqué sur voir plus
+          else if(!field.group && (mainOptions || seeMore)){
+            return (
+              <Fragment>
+                <option className="option_enabled" key={index} value={index}>
+                  {field.text}
+                </option>
+                <option className="option_disabled" disabled>
+                  {field.fields}
+                </option>
+              </Fragment>
+            );
+          }
         })}
+        
+        {(!seeMore && hasGroup) &&
+        <option className="seeMoreOption" key="seeMore" value="seeMore" disabled={false}>
+          { "+ Voir plus"}
+        </option>}
       </select>
       <select
         className="react-es-rule-operator"
