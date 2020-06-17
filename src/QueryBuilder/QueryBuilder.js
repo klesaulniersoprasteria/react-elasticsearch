@@ -139,7 +139,7 @@ export default function QueryBuilder({
     let indexGroupedRules = -1;
     // Regroupement des opérations par field (pour le plaçage des parentèses logiques)
     rules.forEach(rule => {
-      if(rule.field !== prevField){
+      if(String(rule.field) !== String(prevField)){
         prevField = rule.field;
         indexGroupedRules++;
         groupedByFieldRules[indexGroupedRules] = [];
