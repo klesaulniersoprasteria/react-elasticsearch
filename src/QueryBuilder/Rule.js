@@ -38,17 +38,18 @@ export default function Rule({ fields, operators, combinators, ...props }) {
   let input = null;
   if (operators.find(o => o.value === operator && o.useInput)) {
     // Autocomplete zone.
-    if (props.autoComplete && !Array.isArray(field)) {
+    if (props.autoComplete && (Array.isArray(field) && field.length == 1)) {
       input = (
         <Autosuggest
           suggestions={suggestions}
           onSuggestionsFetchRequested={async ({ value }) => {
             let query;
+            let f = field[0];
             const suggestionQuery = operators.find(o => o.value === operator).suggestionQuery;
             if (suggestionQuery) {
-              query = suggestionQuery(field, value);
+              query = suggestionQuery(f, value);
             } else {
-              const terms = { field, include: `.*${value}.*`, order: { _count: "desc" }, size: 10 };
+              const terms = { f, include: `.*${value}.*`, order: { _count: "desc" }, size: 10 };
               query = { query: { match_all: {} }, aggs: { [field]: { terms } }, size: 0 };
             }
             const suggestions = await msearch(url, [{ query, id: "queryBuilder" }], headers);

@@ -16,6 +16,7 @@ function verifInputPage(targetPage, maxPage){
 }
 
 export default function({ onChange, total, itemsPerPage, page }) {
+  page = parseInt(page, 10);
   const max = Math.min(Math.ceil(total / itemsPerPage), 10000 / itemsPerPage);
 
   if(page <= 1){
